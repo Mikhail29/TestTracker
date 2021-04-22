@@ -17,8 +17,7 @@ class AppCore
         $controllerClass = "\APP\Controllers\\".$contollerName;
         if(!class_exists($controllerClass))
         {
-            header("HTTP/1.0 404 Not Found");
-            exit();
+            $this->request->show404();
         }
         $controller = new $controllerClass($this->request);
         call_user_func_array(array($controller, $actionName), $params);

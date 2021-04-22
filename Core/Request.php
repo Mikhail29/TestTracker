@@ -4,16 +4,17 @@ namespace APP\Core;
 
 class Request
 {
-    private $controllerName = "Index", $actionName = "index", $params = array(), $messages = array();
+    private $controllerName = "Index", $actionName = "index", $params = array(), $messages = array(), $requestString;
     
     function __construct()
     {
         $requestString = "/index/index";
         if(array_key_exists("_url", $_GET))
         {
-            $requestString = filter_var($_GET["_url"], FILTER_SANITIZE_URL);;
+            $requestString = filter_var($_GET["_url"], FILTER_SANITIZE_URL);
         }
         $requestString = preg_replace("/^\//", "", $requestString);
+        $this->requestString = $requestString;
         $requestString = strtolower($requestString);
         $requestParts = explode("/", $requestString);
         unset($requestString);
@@ -32,6 +33,11 @@ class Request
             $this->params = $requestParts;
         }
         unset($requestParts);
+    }
+    
+    public function getRequestString()
+    {
+        return isset($_GET["_url"]) && !empty(filter_var($_GET["_url"], FILTER_SANITIZE_URL)) ? filter_var($_GET["_url"], FILTER_SANITIZE_URL) : "";
     }
     
     public function getControllerName()
@@ -67,6 +73,16 @@ class Request
         {
             return $default;
         }
+    }
+    
+    public function getAllGetParams()
+    {
+        $get_params = array();
+        foreach($_GET as $key => $value)
+        {
+            $get_params[filter_var($key, FILTER_SANITIZE_URL)] = filter_var($value, FILTER_SANITIZE_URL);
+        }
+        return $get_params;
     }
     
     public function post($key, $default=null)
@@ -118,5 +134,11 @@ class Request
         $messages = $this->messages;
         $this->messages = array();
         return $messages;
+    }
+    
+    public function show404()
+    {
+        header("HTTP/1.0 404 Not Found");
+        exit();
     }
 }

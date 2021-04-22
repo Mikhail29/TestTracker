@@ -17,35 +17,50 @@ class TasksController extends BaseController
             $model = new TasksModel();
             if($model->insert($task))
             {
-                $this->request->redirect();
+                $this->request->redirectTemporary();
             }
         }
     }
     
-    public function editAction()
+    public function editAction($task_id)
     {
         if(!User::isLogged())
         {
-            header("HTTP/1.0 404 Not Found");
-            exit();
+            $this->request->show404();
         }
-    }
-    
-    public function toogleCompleteAction($task_id)
-    {
-        if(!User::isLogged())
+        $model = new TasksModel();
+        $task = $model->findFirst("id", $task_id);
+        if($this->request->isPost())
         {
-            header("HTTP/1.0 404 Not Found");
-            exit();
+            $content = $this->request->post("content", false);
+            if($task["content"] != $content)
+            {
+                $task = array();
+                $task["admin_edit"] = 1;
+            }
+            else
+            {
+                $task = array();
+            }
+            $task["username"] = $this->request->post("username", false);
+            $task["email"] = $this->request->post("email", false);
+            $task["status"] = $this->request->post("status", false) === false ? 0 : 1;
+            $task["content"] = $content;
+            $model = new TasksModel();
+            if($model->update("id", $task_id, $task))
+            {
+                $this->request->redirectTemporary();
+            }
+            $task["id"] = $task_id;
         }
+        $this->setTemplateVar("task", $task);
     }
     
     public function deleteAction($task_id)
     {
         if(!User::isLogged())
         {
-            header("HTTP/1.0 404 Not Found");
-            exit();
+            $this->request->show404();
         }
         $model = new TasksModel();
         $model->delete("id", $task_id);

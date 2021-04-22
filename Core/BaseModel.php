@@ -30,24 +30,47 @@ class BaseModel
         return $queryDB->execute($data);
     }
     
-    public function update($params)
+    public function update($field = "id", $value = "0", $data)
     {
-        
+        $table_name = substr(strrchr(get_class($this), "\\"), 1);
+        $table_name = strtolower(str_replace("Model", "", $table_name));
+        $query = "UPDATE {$table_name} SET ";
+        $keys = array_keys($data);
+        $sqlData = "";
+        foreach($keys as $key)
+        {
+            $data[$key] = htmlspecialchars($data[$key]);
+            if(empty($sqlData))
+            {
+                $sqlData = "{$key}=:{$key}";
+            }
+            else
+            {
+                $sqlData .= ", {$key}=:{$key}";
+            }
+        }
+        $query .= " ".$sqlData;
+        $queryDB = $this->connection->prepare($query);
+        return $queryDB->execute($data);
     }
     
-    public function find($offset = 0, $limit = 10, $order=null)
+    public function getCount()
+    {
+        $table_name = substr(strrchr(get_class($this), "\\"), 1);
+        $table_name = strtolower(str_replace("Model", "", $table_name));
+        $query = "SELECT COUNT(*) as count FROM {$table_name}";
+        $queryDB = $this->connection->prepare($query);
+        $queryDB->execute();
+        $dataCount = $queryDB->fetch();
+        return $dataCount["count"];
+    }
+    
+    public function find($offset = 0, $limit = 10, $orderBy="id", $orderType = "ASC")
     {
         $table_name = substr(strrchr(get_class($this), "\\"), 1);
         $table_name = strtolower(str_replace("Model", "", $table_name));
         $query = "SELECT * FROM {$table_name}";
-        if(!empty($conditions))
-        {
-            $query .= "";
-        }
-        if(!is_null($order))
-        {
-            $query .= " ORDER BY '{$order}'";
-        }
+        $query .= " ORDER BY {$orderBy} {$orderType}";
         $query .= " LIMIT {$offset},{$limit}";
         $queryDB = $this->connection->prepare($query);
         $success = $queryDB->execute();
@@ -58,9 +81,19 @@ class BaseModel
         return $queryDB->fetchAll(\PDO::FETCH_CLASS);
     }
     
-    public function findFirst($conditions)
+    public function findFirst($field = "id", $value = "0")
     {
-        return false;
+        $table_name = substr(strrchr(get_class($this), "\\"), 1);
+        $table_name = strtolower(str_replace("Model", "", $table_name));
+        $query = "SELECT * FROM {$table_name} WHERE {$field} = :{$field} LIMIT 1";
+        $queryDB = $this->connection->prepare($query);
+        $data[$field] = $value;
+        $success = $queryDB->execute($data);
+        if($success === false)
+        {
+            return false;
+        }
+        return $queryDB->fetch();
     }
     
     public function delete($field="id", $value="0")

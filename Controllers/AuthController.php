@@ -10,8 +10,7 @@ class AuthController extends BaseController
     {
         if(User::isLogged())
         {
-            header("HTTP/1.0 404 Not Found");
-            exit();
+            $this->request->show404();
         }
         if($this->request->isPost())
         {
@@ -30,7 +29,7 @@ class AuthController extends BaseController
                 else
                 {
                     User::login($login, $password);
-                    $this->request->redirect();
+                    $this->request->redirectTemporary();
                 }
             }
         }
@@ -40,10 +39,9 @@ class AuthController extends BaseController
     {
         if(!User::isLogged())
         {
-            header("HTTP/1.0 404 Not Found");
-            exit();
+            $this->request->show404();
         }
         User::logout();
-        $this->request->redirect();
+        $this->request->redirectTemporary();
     }
 }

@@ -50,6 +50,7 @@ class BaseModel
             }
         }
         $query .= " ".$sqlData;
+        $query .= " WHERE {$field} = {$value}";
         $queryDB = $this->connection->prepare($query);
         return $queryDB->execute($data);
     }

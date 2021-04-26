@@ -50,6 +50,7 @@ class TasksController extends BaseController
             $model = new TasksModel();
             if($model->update("id", $task_id, $task))
             {
+                $this->request->addMessage("Задача успешно обновлена!");
                 $this->request->redirectTemporary();
             }
             $task["id"] = $task_id;
@@ -65,6 +66,7 @@ class TasksController extends BaseController
         }
         $model = new TasksModel();
         $model->delete("id", $task_id);
+        $this->request->addMessage("Задача успешно удалена!");
         $this->request->redirectTemporary();
     }
 }

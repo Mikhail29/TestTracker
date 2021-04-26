@@ -131,8 +131,12 @@ class Request
     
     public function getMessages()
     {
-        $messages = $_SESSION["messages"];
-        $_SESSION["messages"] = array();
+        $messages = array();
+        if(isset($_SESSION["messages"]))
+        {
+            $messages = $_SESSION["messages"];
+            $_SESSION["messages"] = array();
+        }
         return $messages;
     }
     

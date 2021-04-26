@@ -17,6 +17,7 @@ class TasksController extends BaseController
             $model = new TasksModel();
             if($model->insert($task))
             {
+                $this->request->addMessage("Задача успешно создана!");
                 $this->request->redirectTemporary();
             }
         }

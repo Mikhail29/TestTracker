@@ -4,7 +4,7 @@ namespace APP\Core;
 
 class Request
 {
-    private $controllerName = "Index", $actionName = "index", $params = array(), $messages = array(), $requestString;
+    private $controllerName = "Index", $actionName = "index", $params = array(), $requestString;
     
     function __construct()
     {
@@ -126,13 +126,13 @@ class Request
     
     public function addMessage($text = "", $class="alert alert-success")
     {
-        $this->messages[] = array("class" => $class, "message" => $text);
+        $_SESSION["messages"][] = array("class" => $class, "message" => $text);
     }
     
     public function getMessages()
     {
-        $messages = $this->messages;
-        $this->messages = array();
+        $messages = $_SESSION["messages"];
+        $_SESSION["messages"] = array();
         return $messages;
     }
     
